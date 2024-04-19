@@ -1,4 +1,4 @@
-import arbetare from "../public.jpg"
+import arbetare from "../public/arbetare.jpg"
 import Image from "next/image";
 import Link from "next/link";
 
