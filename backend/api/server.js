@@ -3,7 +3,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
+
 
 // Middleware
 app.use(cors());
