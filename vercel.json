@@ -1,9 +1,19 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/backend/api/server.js"
+      "src": "frontend/next.config.mjs",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "backend/api/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/api/server.js"
     }
   ]
 }
