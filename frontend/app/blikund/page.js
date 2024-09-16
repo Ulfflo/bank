@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -6,6 +6,8 @@ import { useState } from "react";
 export default function BliKund() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackType, setFeedbackType] = useState(""); // "success" or "error"
   const router = useRouter();
 
   const handleCreateAccount = async () => {
@@ -22,13 +24,19 @@ export default function BliKund() {
       });
 
       if (response.ok && password !== "" && username !== "") {
-        alert("Grattis! Du har skapat ett konto i Arbetarbaken.");
-        router.push("/loggain");
+        setFeedbackMessage("Grattis! Du har skapat ett konto i Arbetarbaken.");
+        setFeedbackType("success");
+        setTimeout(() => {
+          router.push("/loggain");
+        }, 2000); // 2000 ms = 2 seconds
       } else {
-        alert("Glöm inte att fylla i användarnamn och lösenord.");
+        setFeedbackMessage("Glöm inte att fylla i användarnamn och lösenord.");
+        setFeedbackType("error");
       }
     } catch (error) {
       console.error("Något gick fel.", error);
+      setFeedbackMessage("Ett fel inträffade. Försök igen.");
+      setFeedbackType("error");
     } finally {
       setPassword("");
       setUsername("");
@@ -42,7 +50,19 @@ export default function BliKund() {
       </h1>
       <div className="flex flex-col bg-black justify-content items-center w-96 h-96 text-yellow-50 rounded">
         <p className="mt-8">Skapa ett konto hos oss</p>
-        <label htmlFor="username" className="mt-20">
+
+        {/* Feedback Message */}
+        {feedbackMessage && (
+          <div
+            className={`mt-4 px-4 py-2 rounded ${
+              feedbackType === "success" ? "bg-green-500" : "bg-red-500"
+            } text-white`}
+          >
+            {feedbackMessage}
+          </div>
+        )}
+
+        <label htmlFor="username" className="mt-8">
           Användarnamn:
         </label>
         <input
@@ -50,6 +70,7 @@ export default function BliKund() {
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className="mt-2 p-2 rounded"
         />
         <label htmlFor="password" className="mt-8">
           Lösenord:
@@ -59,6 +80,7 @@ export default function BliKund() {
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="mt-2 p-2 rounded"
         />
         <button
           onClick={handleCreateAccount}

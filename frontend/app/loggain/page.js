@@ -6,9 +6,19 @@ import { useState } from "react";
 export default function Loggain() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackType, setFeedbackType] = useState(""); // "success" or "error"
   const router = useRouter();
 
   const handleLogin = async () => {
+    if (!username.trim() || !password.trim()) {
+      setFeedbackMessage("Användarnamn och lösenord måste fyllas i.");
+      setFeedbackType("error");
+      setPassword("");
+      setUsername("");
+      return; // Stop further execution if validation fails
+    }
+
     try {
       const response = await fetch("http://localhost:3001/sessions", {
         method: "POST",
@@ -25,26 +35,45 @@ export default function Loggain() {
         const data = await response.json();
         localStorage.setItem("sessionId", data.session.token);
 
-        const sessionId = localStorage.getItem("sessionId");
-        
-        router.push("/konto");
+        // Success message before redirection
+        setFeedbackMessage("Inloggning lyckades! Du skickas vidare...");
+        setFeedbackType("success");
+
+        setTimeout(() => {
+          router.push("/konto");
+        }, 2000); // 2 seconds delay before redirecting
       } else {
-        alert("Fel användarnamn eller lösenord.");
+        setFeedbackMessage("Fel användarnamn eller lösenord.");
+        setFeedbackType("error");
       }
     } catch (error) {
       console.error("Något gick fel.", error);
-      alert("Något gick fel vid inloggning")
+      setFeedbackMessage("Något gick fel vid inloggning. Försök igen.");
+      setFeedbackType("error");
+    } finally {
+      setPassword("");
+      setUsername("");
     }
   };
 
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-4xl text-center">
-        Välkommen till Arbetarbanken
-      </h1>
+      <h1 className="text-4xl text-center">Välkommen till Arbetarbanken</h1>
       <div className="flex flex-col bg-black justify-content items-center w-96 h-96 text-yellow-50 rounded">
         <p className="mt-8">Logga in</p>
-        <label htmlFor="username" className="mt-20">
+
+        {/* Feedback Message */}
+        {feedbackMessage && (
+          <div
+            className={`mt-4 px-4 py-2 rounded ${
+              feedbackType === "success" ? "bg-green-500" : "bg-red-500"
+            } text-white`}
+          >
+            {feedbackMessage}
+          </div>
+        )}
+
+        <label htmlFor="username" className="mt-8">
           Användarnamn:
         </label>
         <input
@@ -52,6 +81,7 @@ export default function Loggain() {
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className="mt-2 p-2 rounded"
         />
         <label htmlFor="password" className="mt-8">
           Lösenord:
@@ -61,6 +91,7 @@ export default function Loggain() {
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="mt-2 p-2 rounded"
         />
         <button
           onClick={handleLogin}
